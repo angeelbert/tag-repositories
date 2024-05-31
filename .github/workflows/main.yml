@@ -1,0 +1,48 @@
+name: Tag and Release Multiple Repositories
+
+on:
+  push:
+    branches:
+      - main
+      - feat/devops
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Git
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+    - name: Bump version and push tag
+      id: tag_version
+      uses: mathieudutour/github-tag-action@v6.2
+      with:
+        github_token: ${{ secrets.GH_TOKEN }}
+
+    - name: Create a GitHub release in current repo
+      uses: ncipollo/release-action@v1
+      with:
+        tag: ${{ steps.tag_version.outputs.new_tag }}
+        name: Release ${{ steps.tag_version.outputs.new_tag }}
+        body: ${{ steps.tag_version.outputs.changelog }}
+        token: ${{ secrets.GH_TOKEN }}
+
+    - name: Tag and Release in other repositories
+      run: |
+        chmod +x tag_and_release.sh
+        ./tag_and_release.sh ${{ steps.tag_version.outputs.new_tag }}
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    # - name: Tag individual files
+    #   run: |
+    #     chmod +x tag_files.sh
+    #     ./tag_files.sh "FILE_TAGS.md" ${{ steps.tag_version.outputs.new_tag }}
+    #     ./tag_files.sh "tag_files.sh" ${{ steps.tag_version.outputs.new_tag }}
+    #   env:
+    #     GH_TOKEN: ${{ secrets.GH_TOKEN }}
