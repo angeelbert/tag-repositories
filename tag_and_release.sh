@@ -68,9 +68,17 @@ if [ -f "files.txt" ]; then
 
     # Verificar si ya estamos en un repositorio antes de intentar etiquetar el archivo
     if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
-      # Asegurarse de que el archivo esté versionado
+      # Asegurarse de que el archivo esté versionado y tiene cambios
       git add "$file_path" || { echo "Failed to add file $file_path"; continue; }
-      git commit -m "Tagging file $file_path with tag $tag_name" || { echo "No changes to commit for $file_path"; continue; }
+      
+      # Comprobar si hay cambios para comitear
+      if git diff-index --quiet HEAD -- "$file_path"; then
+        echo "No changes to commit for $file_path"
+      else
+        git commit -m "Tagging file $file_path with tag $tag_name" || { echo "No changes to commit for $file_path"; continue; }
+      fi
+
+      # Forzar la creación de la etiqueta
       git tag -a "$tag_name" -m "Tagging file $file_path with tag $tag_name" --force || { echo "Failed to tag file $file_path with tag $tag_name"; continue; }
       git push origin "$tag_name" --force || { echo "Failed to push tag $tag_name for file $file_path"; continue; }
       echo "Tagged file $file_path with tag $tag_name"
