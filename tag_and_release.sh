@@ -22,7 +22,7 @@ tag_and_release_repo() {
     cd "$repo_name" || { echo "Failed to change directory to repository: $repo_name"; exit 1; }
     git config user.name "github-actions[bot]"
     git config user.email "github-actions[bot]@users.noreply.github.com"
-    git tag -a "$tag_name" -m "Tagging version $tag_name"
+    git tag "$tag_name"
     git push "$authenticated_repo_url" --tags || { echo "Failed to push tags to repository: $repo_url"; exit 1; }
     cd ..
   fi
@@ -64,23 +64,12 @@ if [ -f "files.txt" ]; then
   while IFS= read -r file_path; do
     echo "Tagging file: $file_path"
     file_name=$(basename "$file_path" | tr -d '\r')
-    tag_name="$1"
+    tag_name="${file_name%.*}"
 
     # Verificar si ya estamos en un repositorio antes de intentar etiquetar el archivo
     if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
-      # Asegurarse de que el archivo esté versionado y tiene cambios
-      git add "$file_path" || { echo "Failed to add file $file_path"; continue; }
-      
-      # Comprobar si hay cambios para comitear
-      if git diff-index --quiet HEAD -- "$file_path"; then
-        echo "No changes to commit for $file_path"
-      else
-        git commit -m "Tagging file $file_path with tag $tag_name" || { echo "No changes to commit for $file_path"; continue; }
-      fi
-
-      # Forzar la creación de la etiqueta
-      git tag -a "$tag_name" -m "Tagging file $file_path with tag $tag_name" --force || { echo "Failed to tag file $file_path with tag $tag_name"; continue; }
-      git push origin "$tag_name" --force || { echo "Failed to push tag $tag_name for file $file_path"; continue; }
+      git tag "$tag_name" --force || { echo "Failed to tag file $file_path with tag $tag_name"; continue; }
+      git push origin "$tag_name" || { echo "Failed to push tag $tag_name for file $file_path"; continue; }
       echo "Tagged file $file_path with tag $tag_name"
     else
       echo "Not inside a git repository. Skipping file tagging."
