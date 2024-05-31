@@ -64,12 +64,12 @@ if [ -f "files.txt" ]; then
   while IFS= read -r file_path; do
     echo "Tagging file: $file_path"
     file_name=$(basename "$file_path" | tr -d '\r')
-    tag_name="${file_name%.*}"
+    tag_name="$1"
 
     # Verificar si ya estamos en un repositorio antes de intentar etiquetar el archivo
     if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
       git tag -a "$tag_name" -m "Tagging file $file_path with tag $tag_name" --force || { echo "Failed to tag file $file_path with tag $tag_name"; continue; }
-      git push origin "$tag_name" || { echo "Failed to push tag $tag_name for file $file_path"; continue; }
+      git push origin "$tag_name" --force || { echo "Failed to push tag $tag_name for file $file_path"; continue; }
       echo "Tagged file $file_path with tag $tag_name"
     else
       echo "Not inside a git repository. Skipping file tagging."
