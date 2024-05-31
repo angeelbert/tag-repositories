@@ -64,7 +64,7 @@ if [ -f "files.txt" ]; then
   while IFS= read -r file_path; do
     echo "Tagging file: $file_path"
     file_name=$(basename "$file_path" | tr -d '\r')
-    tag_name="${file_name%.*}"
+    tag_name="$1"
 
     # Verificar si ya estamos en un repositorio antes de intentar etiquetar el archivo
     if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then

@@ -38,11 +38,3 @@ jobs:
         ./tag_and_release.sh ${{ steps.tag_version.outputs.new_tag }}
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
-
-    # - name: Tag individual files
-    #   run: |
-    #     chmod +x tag_files.sh
-    #     ./tag_files.sh "FILE_TAGS.md" ${{ steps.tag_version.outputs.new_tag }}
-    #     ./tag_files.sh "tag_files.sh" ${{ steps.tag_version.outputs.new_tag }}
-    #   env:
-    #     GH_TOKEN: ${{ secrets.GH_TOKEN }}
