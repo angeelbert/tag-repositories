@@ -12,7 +12,8 @@ tag_and_release_repo() {
   authenticated_repo_url="https://${GH_TOKEN}@${repo_url#https://}"
 
   if git ls-remote --tags "$repo_url" | grep -q "refs/tags/$tag_name"; then
-    echo "Tag $tag_name already exists in $repo_url. Skipping tagging."
+    echo "Tag $tag_name already exists in $repo_url. Skippin
+    g tagging."
   else
     if [ -d "$repo_name" ]; then
       echo "Repository directory already exists. Skipping cloning."
